@@ -9,3 +9,4 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(doctest)
 include_directories(.)
 add_subdirectory(lab1)
+add_subdirectory(lab2)
