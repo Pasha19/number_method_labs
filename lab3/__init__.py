@@ -77,7 +77,7 @@ def method_simple_iteration(
         eps: float = 1.0e-6,
         max_iterations: int = 20,
         norm=lambda x: abs(x).max()
-):
+) -> npt.NDArray:
     shape = matrix.shape
     validate_slae_matrix(matrix)
     helper_normilize(matrix)
@@ -95,7 +95,7 @@ def method_seidel(
         eps: float = 1.0e-6,
         max_iterations: int = 20,
         norm=lambda x: abs(x).max()
-):
+) -> npt.NDArray:
     shape = matrix.shape
     validate_slae_matrix(matrix)
     helper_normilize(matrix)
@@ -112,3 +112,21 @@ def method_seidel(
             break
         x0 = x
     return x0
+
+
+def method_lu(matrix: npt.NDArray) -> npt.NDArray:
+    shape = matrix.shape
+    validate_slae_matrix(matrix)
+    for k in range(shape[0]):
+        for i in range(k, shape[0]):
+            for j in range(k):
+                matrix[i][k] -= matrix[i][j] * matrix[j][k]
+        for i in range(k + 1, shape[0]):
+            for j in range(k):
+                matrix[k][i] -= matrix[k][j] * matrix[j][i]
+            matrix[k][i] /= matrix[k][k]
+    for i in range(shape[0]):
+        for j in range(i):
+            matrix[i][-1] -= matrix[i][j] * matrix[j][-1]
+        matrix[i][-1] /= matrix[i][i]
+    return reverse(matrix)

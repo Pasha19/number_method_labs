@@ -52,3 +52,16 @@ def test_methods_iteration(method):
     matrix = slae[:shape[0], :shape[0]]
     col = slae[:, -1]
     assert np.allclose(matrix.dot(solution), col)
+
+
+def test_method_lu():
+    slae = np.array([
+        [2, 1, 4, 16],
+        [3, 2, 1, 10],
+        [1, 3, 3, 16],
+    ], dtype="float64")
+    solution = lab3.method_lu(np.copy(slae))
+    shape = slae.shape
+    matrix = slae[:shape[0], :shape[0]]
+    col = slae[:, -1]
+    assert np.allclose(matrix.dot(solution), col)
