@@ -6,26 +6,29 @@ class MatrixSizeException(Exception):
     pass
 
 
-def reverse(matr: npt.NDArray) -> npt.NDArray:
-    shape = matr.shape
-    result = np.zeros((shape[0], 1))
+def validate_slae_matrix(matrix: npt.NDArray) -> None:
+    shape = matrix.shape
+    if len(shape) != 2 or shape[0] + 1 != shape[1]:
+        raise MatrixSizeException()
+
+
+def reverse(matrix: npt.NDArray) -> npt.NDArray:
+    shape = matrix.shape
+    result = np.zeros((shape[0],))
     for i in range(shape[0] - 1, -1, -1):
-        result[i] = matr[i][shape[0]]
+        result[i] = matrix[i][shape[0]]
         for j in range(shape[0] - 1, i, -1):
-            result[i] -= result[j] * matr[i][j]
+            result[i] -= result[j] * matrix[i][j]
     return result
 
 
 def method_gauss(matrix: npt.NDArray) -> npt.NDArray:
     shape = matrix.shape
-    if len(shape) != 2 or shape[0] + 1 != shape[1]:
-        raise MatrixSizeException()
-
+    validate_slae_matrix(matrix)
     for i in range(shape[0]):
         matrix[i] /= matrix[i][i]
         for j in range(i + 1, shape[0]):
             matrix[j] -= matrix[j][i] * matrix[i]
-
     return reverse(matrix)
 
 
@@ -40,24 +43,43 @@ def helper_rect(matrix: npt.NDArray, k: int) -> None:
 
 def method_exclude_rect(matrix: npt.NDArray) -> npt.NDArray:
     shape = matrix.shape
-    if len(shape) != 2 or shape[0] + 1 != shape[1]:
-        raise MatrixSizeException()
-
+    validate_slae_matrix(matrix)
     for k in range(shape[0]):
         helper_rect(matrix, k)
-
     return reverse(matrix)
 
 
 def method_gauss_max_element(matrix: npt.NDArray) -> npt.NDArray:
     shape = matrix.shape
-    if len(shape) != 2 or shape[0] + 1 != shape[1]:
-        raise MatrixSizeException()
-
+    validate_slae_matrix(matrix)
     for k in range(shape[0]):
         max_ind = abs(matrix[k:, k]).argmax() + k
         if k != max_ind:
             matrix[[k, max_ind]] = matrix[[max_ind, k]]
         helper_rect(matrix, k)
-
     return reverse(matrix)
+
+
+def method_simple_iteration(
+        matrix: npt.NDArray,
+        eps: float = 1.0e-6,
+        max_iterations: int = 20,
+        norm=lambda x: abs(x).max()
+):
+    shape = matrix.shape
+    validate_slae_matrix(matrix)
+    for i in range(shape[0]):
+        max_ind = abs(matrix[i, :-1]).argmax()
+        if i != max_ind:
+            matrix[[i, max_ind]] = matrix[[max_ind, i]]
+    for i in range(shape[0]):
+        matrix[i] /= -matrix[i][i]
+        matrix[i][i] = 0.0
+        matrix[i][-1] *= -1.0
+    x0 = np.copy(matrix[:, shape[0]])
+    for i in range(max_iterations):
+        x = matrix[:, :-1].dot(x0) + matrix[:, -1]
+        if norm(x - x0) < eps:
+            break
+        x0 = x
+    return x0

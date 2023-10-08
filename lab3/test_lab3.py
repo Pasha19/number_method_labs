@@ -18,7 +18,7 @@ def test_methods(method):
     solution = method(np.copy(slae))
     shape = slae.shape
     matrix = slae[:shape[0], :shape[0]]
-    col = slae[:, [shape[0]]]
+    col = slae[:, -1]
     assert np.allclose(matrix.dot(solution), col)
 
 
@@ -31,5 +31,18 @@ def test_method_gauss_max_element():
     solution = lab3.method_gauss_max_element(np.copy(slae))
     shape = slae.shape
     matrix = slae[:shape[0], :shape[0]]
-    col = slae[:, [shape[0]]]
+    col = slae[:, -1]
+    assert np.allclose(matrix.dot(solution), col)
+
+
+def test_method_simple_iteration():
+    slae = np.array([
+        [ 2,  2, 10, 14],
+        [10,  1,  1, 12],
+        [ 2, 10,  1, 13],
+    ], dtype="float64")
+    solution = lab3.method_simple_iteration(np.copy(slae))
+    shape = slae.shape
+    matrix = slae[:shape[0], :shape[0]]
+    col = slae[:, -1]
     assert np.allclose(matrix.dot(solution), col)
