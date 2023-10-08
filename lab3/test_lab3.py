@@ -35,13 +35,19 @@ def test_method_gauss_max_element():
     assert np.allclose(matrix.dot(solution), col)
 
 
-def test_method_simple_iteration():
+def get_methods_iteration():
+    yield lab3.method_simple_iteration
+    yield lab3.method_seidel
+
+
+@pytest.mark.parametrize("method", get_methods_iteration())
+def test_methods_iteration(method):
     slae = np.array([
         [ 2,  2, 10, 14],
         [10,  1,  1, 12],
         [ 2, 10,  1, 13],
     ], dtype="float64")
-    solution = lab3.method_simple_iteration(np.copy(slae))
+    solution = method(np.copy(slae))
     shape = slae.shape
     matrix = slae[:shape[0], :shape[0]]
     col = slae[:, -1]

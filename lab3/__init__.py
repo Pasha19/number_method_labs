@@ -60,14 +60,8 @@ def method_gauss_max_element(matrix: npt.NDArray) -> npt.NDArray:
     return reverse(matrix)
 
 
-def method_simple_iteration(
-        matrix: npt.NDArray,
-        eps: float = 1.0e-6,
-        max_iterations: int = 20,
-        norm=lambda x: abs(x).max()
-):
+def helper_normilize(matrix: npt.NDArray) -> None:
     shape = matrix.shape
-    validate_slae_matrix(matrix)
     for i in range(shape[0]):
         max_ind = abs(matrix[i, :-1]).argmax()
         if i != max_ind:
@@ -76,9 +70,44 @@ def method_simple_iteration(
         matrix[i] /= -matrix[i][i]
         matrix[i][i] = 0.0
         matrix[i][-1] *= -1.0
+
+
+def method_simple_iteration(
+        matrix: npt.NDArray,
+        eps: float = 1.0e-6,
+        max_iterations: int = 20,
+        norm=lambda x: abs(x).max()
+):
+    shape = matrix.shape
+    validate_slae_matrix(matrix)
+    helper_normilize(matrix)
     x0 = np.copy(matrix[:, shape[0]])
     for i in range(max_iterations):
         x = matrix[:, :-1].dot(x0) + matrix[:, -1]
+        if norm(x - x0) < eps:
+            break
+        x0 = x
+    return x0
+
+
+def method_seidel(
+        matrix: npt.NDArray,
+        eps: float = 1.0e-6,
+        max_iterations: int = 20,
+        norm=lambda x: abs(x).max()
+):
+    shape = matrix.shape
+    validate_slae_matrix(matrix)
+    helper_normilize(matrix)
+    x0 = np.zeros((shape[0],))
+    for k in range(max_iterations):
+        x = np.zeros((shape[0],))
+        for i in range(shape[0]):
+            for j in range(i):
+                x[i] += matrix[i][j] * x[j]
+            for j in range(i, shape[0]):
+                x[i] += matrix[i][j] * x0[j]
+            x[i] += matrix[i][-1]
         if norm(x - x0) < eps:
             break
         x0 = x
