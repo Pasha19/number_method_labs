@@ -130,3 +130,20 @@ def method_lu(matrix: npt.NDArray) -> npt.NDArray:
             matrix[i][-1] -= matrix[i][j] * matrix[j][-1]
         matrix[i][-1] /= matrix[i][i]
     return reverse(matrix)
+
+
+def method_sweep(matrix: npt.NDArray) -> npt.NDArray:
+    shape = matrix.shape
+    validate_slae_matrix(matrix)
+    p = np.zeros((shape[0] - 1,), "float64")
+    q = np.copy(p)
+    p[0] = -matrix[0][1] / matrix[0][0]
+    q[0] =  matrix[0][-1] / matrix[0][0]
+    for i in range(1, shape[0] - 1):
+        p[i] = matrix[i][i + 1] / (-matrix[i][i] - matrix[i][i - 1] * p[i - 1])
+        q[i] = (matrix[i][i - 1] * q[i - 1] - matrix[i][-1]) / (-matrix[i][i] - matrix[i][i - 1] * p[i - 1])
+    result = np.zeros((shape[0],), "float64")
+    result[-1] = (matrix[-1][-3] * q[-1] - matrix[-1][-1]) / (-matrix[-1][-2] - matrix[-1][-3] * p[-1])
+    for i in range(shape[0] - 2, -1, -1):
+        result[i] = p[i] * result[i + 1] + q[i]
+    return result

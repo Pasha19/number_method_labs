@@ -65,3 +65,17 @@ def test_method_lu():
     matrix = slae[:shape[0], :shape[0]]
     col = slae[:, -1]
     assert np.allclose(matrix.dot(solution), col)
+
+
+def test_method_sweep():
+    slae = np.array([
+        [5, 3, 0,  0,  8],
+        [3, 6, 1,  0, 10],
+        [0, 1, 4, -2,  3],
+        [0, 0, 1, -3, -2],
+    ], dtype="float64")
+    solution = lab3.method_sweep(np.copy(slae))
+    shape = slae.shape
+    matrix = slae[:shape[0], :shape[0]]
+    col = slae[:, -1]
+    assert np.allclose(matrix.dot(solution), col)
